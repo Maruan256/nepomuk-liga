@@ -1,0 +1,1112 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nepomuk-Liga</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --paper: #FFF8F0;
+    --paper-raised: #FFFFFF;
+    --paper-sunken: #F3ECE2;
+    --ink: #241A33;
+    --ink-soft: #6E6478;
+    --ink-faint: #9A90A6;
+    --line: #E9E0D3;
+    --accent-a: #FF3D68;
+    --accent-a-soft: #FFE3EA;
+    --accent-b: #2F6FED;
+    --accent-b-soft: #E2ECFF;
+    --gold: #E29400;
+    --gold-soft: #FFF1D0;
+    --violet: #7C5CFF;
+    --violet-soft: #ECE7FF;
+    --good: #1E9B63;
+    --danger: #E0435F;
+    --shadow: rgba(36,26,51,0.10);
+    --shadow-strong: rgba(36,26,51,0.20);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #16121F;
+      --paper-raised: #211A2E;
+      --paper-sunken: #1C1626;
+      --ink: #F4EFFB;
+      --ink-soft: #B3A8C4;
+      --ink-faint: #7B7089;
+      --line: #342A45;
+      --accent-a: #FF5C82;
+      --accent-a-soft: #3A1B2C;
+      --accent-b: #5B8CFF;
+      --accent-b-soft: #16233F;
+      --gold: #FFC64B;
+      --gold-soft: #3A2C0E;
+      --violet: #9A85FF;
+      --violet-soft: #251E42;
+      --good: #3FC98A;
+      --danger: #FF6B84;
+      --shadow: rgba(0,0,0,0.35);
+      --shadow-strong: rgba(0,0,0,0.5);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #16121F;
+    --paper-raised: #211A2E;
+    --paper-sunken: #1C1626;
+    --ink: #F4EFFB;
+    --ink-soft: #B3A8C4;
+    --ink-faint: #7B7089;
+    --line: #342A45;
+    --accent-a: #FF5C82;
+    --accent-a-soft: #3A1B2C;
+    --accent-b: #5B8CFF;
+    --accent-b-soft: #16233F;
+    --gold: #FFC64B;
+    --gold-soft: #3A2C0E;
+    --violet: #9A85FF;
+    --violet-soft: #251E42;
+    --good: #3FC98A;
+    --danger: #FF6B84;
+    --shadow: rgba(0,0,0,0.35);
+    --shadow-strong: rgba(0,0,0,0.5);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Baloo 2','Manrope',sans-serif; }
+  .num{ font-family:'Space Mono', monospace; font-variant-numeric: tabular-nums; }
+  button{ font-family:inherit; }
+  :focus-visible{ outline: 3px solid var(--violet); outline-offset: 2px; }
+
+  #app{ max-width:560px; margin:0 auto; padding:14px 14px 60px; min-height:100vh; }
+
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; gap:8px;
+    padding:12px 4px; margin-bottom:6px;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .brand{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:1.15rem; flex:1; letter-spacing:.2px; }
+  .brand .crest{ font-size:1.4rem; }
+  .chip-btn{
+    display:flex; align-items:center; gap:6px;
+    background:var(--paper-raised); border:1.5px solid var(--line); color:var(--ink);
+    padding:6px 10px; border-radius:999px; font-weight:700; font-size:.85rem;
+    cursor:pointer; box-shadow:0 1px 0 var(--shadow);
+  }
+  .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:50%; border:1.5px solid var(--line);
+    background:var(--paper-raised); cursor:pointer; font-size:1rem; line-height:1;
+  }
+
+  .banner{
+    background:var(--gold-soft); color:var(--ink); border:1.5px dashed var(--gold);
+    border-radius:14px; padding:10px 14px; font-size:.85rem; font-weight:600;
+    margin-bottom:14px;
+  }
+
+  main{ display:flex; flex-direction:column; gap:26px; }
+  section{ display:flex; flex-direction:column; gap:12px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .section-head h2{ margin:0; font-size:1.15rem; font-weight:700; }
+  .section-head .hint{ font-size:.78rem; color:var(--ink-faint); font-weight:600; }
+
+  .vs-hero{
+    background:var(--paper-raised); border:1.5px solid var(--line); border-radius:22px;
+    padding:16px; box-shadow:0 2px 0 var(--shadow);
+  }
+  .vs-grid{ display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; }
+  @media (max-width:420px){ .vs-grid{ grid-template-columns:1fr; } .vs-badge{ justify-self:center; transform:rotate(90deg); } }
+  .player-panel{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .player-top{ display:flex; align-items:center; gap:8px; }
+  .avatar{
+    width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:1.05rem; flex:none; font-family:'Baloo 2',sans-serif;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.15);
+  }
+  .player-name-row{ display:flex; align-items:center; gap:4px; min-width:0; }
+  .player-name{ font-weight:800; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rename-btn{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:.75rem; padding:2px; flex:none; }
+  .rank-title{ font-size:.72rem; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
+  .crown{ font-size:.85rem; }
+  .xp-row{ display:flex; align-items:center; gap:6px; font-size:.75rem; color:var(--ink-soft); font-weight:700; }
+  .xp-track{ height:9px; border-radius:999px; background:var(--paper-sunken); overflow:hidden; border:1px solid var(--line); }
+  .xp-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,var(--gold),var(--accent-a)); transition:width .5s ease; }
+  .stat-line{ display:flex; gap:10px; font-size:.78rem; color:var(--ink-soft); font-weight:700; flex-wrap:wrap; }
+  .stat-line .flame{ color:var(--danger); }
+  .vs-badge{
+    font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.95rem; color:var(--paper);
+    background:var(--ink); width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+
+  .duel-bar{ margin-top:14px; }
+  .duel-track{
+    display:flex; height:26px; border-radius:999px; overflow:hidden; border:1.5px solid var(--line);
+    background:var(--paper-sunken);
+  }
+  .duel-a{ background:var(--accent-a); transition:width .6s ease; }
+  .duel-b{ background:var(--accent-b); transition:width .6s ease; }
+  .duel-labels{ display:flex; justify-content:space-between; font-size:.72rem; font-weight:700; color:var(--ink-soft); margin-top:5px; }
+
+  .quest-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  @media (min-width:480px){ .quest-grid{ grid-template-columns:repeat(3,1fr); } }
+  .quest-card{
+    position:relative; text-align:left; cursor:pointer;
+    background:var(--paper-raised); border:1.5px solid var(--line); border-radius:18px;
+    padding:12px; display:flex; flex-direction:column; gap:8px; min-height:118px;
+    transition: transform .12s ease, box-shadow .12s ease; box-shadow:0 2px 0 var(--shadow);
+  }
+  .quest-card:active{ transform:scale(.96); box-shadow:0 0 0 var(--shadow); }
+  .quest-icon-row{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .quest-icon{
+    width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.25rem; background:var(--violet-soft);
+  }
+  .points-chip{
+    background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold);
+    font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:999px; flex:none;
+  }
+  .quest-name{ font-weight:700; font-size:.85rem; line-height:1.2; }
+  .quest-today{ font-size:.7rem; color:var(--ink-soft); font-weight:700; display:flex; gap:8px; margin-top:auto; }
+  .quest-today span{ display:inline-flex; align-items:center; gap:3px; }
+  .quest-card.add-card{
+    border-style:dashed; align-items:center; justify-content:center; text-align:center; color:var(--ink-faint);
+    font-weight:800; gap:4px;
+  }
+  .quest-card .del-x{
+    position:absolute; top:6px; right:6px; background:var(--paper-sunken); border:none; border-radius:50%;
+    width:20px; height:20px; font-size:.7rem; color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+
+  .compare-card{ background:var(--paper-raised); border:1.5px solid var(--line); border-radius:18px; padding:14px; display:flex; flex-direction:column; gap:12px; }
+  .compare-row{ display:flex; flex-direction:column; gap:4px; }
+  .compare-row .crow-label{ font-size:.78rem; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .compare-bars{ display:flex; flex-direction:column; gap:3px; }
+  .cbar-track{ height:10px; border-radius:6px; background:var(--paper-sunken); overflow:hidden; }
+  .cbar-fill{ height:100%; border-radius:6px; transition:width .5s ease; }
+  .compare-nums{ display:flex; justify-content:space-between; font-size:.68rem; color:var(--ink-faint); font-weight:700; }
+
+  /* ---------- month view ---------- */
+  .month-card{ background:var(--paper-raised); border:1.5px solid var(--line); border-radius:18px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .month-nav{ display:flex; align-items:center; justify-content:space-between; }
+  .month-nav button{ background:var(--paper-sunken); border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-weight:800; color:var(--ink); }
+  .month-nav .month-label{ font-weight:800; font-size:.95rem; }
+  .month-legend{ display:flex; gap:14px; font-size:.7rem; color:var(--ink-soft); font-weight:700; }
+  .month-legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; font-size:.65rem; font-weight:700; color:var(--ink-faint); text-align:center; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-cell{
+    position:relative; aspect-ratio:1; border:1.5px solid var(--line); border-radius:10px; background:var(--paper-sunken);
+    cursor:pointer; padding:3px; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden;
+  }
+  .cal-cell.empty{ visibility:hidden; border:none; background:none; cursor:default; }
+  .cal-cell.today{ border-color:var(--violet); border-width:2px; }
+  .cal-num{ font-size:.62rem; font-weight:700; color:var(--ink-soft); }
+  .cal-bars{ display:flex; align-items:flex-end; gap:2px; height:60%; }
+  .cal-bar{ flex:1; border-radius:2px 2px 0 0; min-height:0; }
+  .cal-bar.a{ background:var(--accent-a); }
+  .cal-bar.b{ background:var(--accent-b); }
+  .day-modal-list{ display:flex; flex-direction:column; gap:8px; max-height:50vh; overflow-y:auto; }
+
+  .seg{ display:flex; gap:6px; background:var(--paper-sunken); padding:4px; border-radius:999px; align-self:flex-start; }
+  .seg button{
+    border:none; background:transparent; padding:6px 14px; border-radius:999px; font-weight:800; font-size:.8rem;
+    cursor:pointer; color:var(--ink-soft);
+  }
+  .seg button.active{ background:var(--paper-raised); box-shadow:0 1px 0 var(--shadow); }
+  .badge-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  @media (min-width:480px){ .badge-grid{ grid-template-columns:repeat(6,1fr); } }
+  .badge-tile{
+    background:var(--paper-raised); border:1.5px solid var(--line); border-radius:14px; padding:10px 6px;
+    display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;
+  }
+  .badge-tile .b-icon{ font-size:1.5rem; }
+  .badge-tile.locked .b-icon{ filter:grayscale(1); opacity:.35; }
+  .badge-tile.locked .b-name{ opacity:.4; }
+  .badge-tile .b-name{ font-size:.62rem; font-weight:700; color:var(--ink-soft); line-height:1.1; }
+
+  .feed-panel{
+    background:var(--paper-raised); border:1.5px solid var(--line); border-radius:18px;
+    max-height:380px; overflow-y:auto; padding:6px 4px;
+  }
+  .feed-row{ display:flex; gap:10px; padding:10px 12px; border-bottom:1px solid var(--line); }
+  .feed-row:last-child{ border-bottom:none; }
+  .feed-dot{ width:10px; height:10px; border-radius:50%; margin-top:5px; flex:none; }
+  .feed-body{ flex:1; min-width:0; }
+  .feed-line{ font-size:.85rem; line-height:1.35; }
+  .feed-line b{ font-weight:800; }
+  .feed-note{ font-size:.8rem; color:var(--ink-soft); font-style:italic; margin-top:2px; }
+  .feed-right{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:none; }
+  .feed-time{ font-size:.68rem; color:var(--ink-faint); font-weight:700; white-space:nowrap; }
+  .feed-del{ background:none; border:none; color:var(--ink-faint); cursor:pointer; font-size:.78rem; padding:2px; line-height:1; }
+  .feed-del:hover{ color:var(--danger); }
+  .feed-empty{ padding:24px; text-align:center; color:var(--ink-faint); font-size:.85rem; font-weight:600; }
+
+  .modal-back{ position:fixed; inset:0; background:rgba(20,14,28,.5); display:flex; align-items:flex-end; justify-content:center; z-index:100; }
+  @media (min-width:480px){ .modal-back{ align-items:center; } }
+  .modal-card{
+    background:var(--paper-raised); border-radius:22px 22px 0 0; padding:22px 20px calc(20px + env(safe-area-inset-bottom));
+    width:100%; max-width:480px; box-shadow:0 -4px 30px var(--shadow-strong);
+    display:flex; flex-direction:column; gap:14px; max-height:85vh; overflow-y:auto;
+  }
+  @media (min-width:480px){ .modal-card{ border-radius:22px; } }
+  .modal-card h3{ margin:0; font-size:1.15rem; }
+  .modal-card p{ margin:0; }
+  .modal-card label{ font-size:.78rem; font-weight:700; color:var(--ink-soft); display:flex; flex-direction:column; gap:6px; }
+  .modal-card input[type=text], .modal-card input[type=number], .modal-card textarea{
+    font-family:'Manrope',sans-serif; font-size:.95rem; padding:10px 12px; border-radius:12px;
+    border:1.5px solid var(--line); background:var(--paper-sunken); color:var(--ink); resize:vertical;
+  }
+  .modal-actions{ display:flex; gap:10px; margin-top:4px; }
+  .btn{
+    flex:1; padding:12px; border-radius:14px; border:none; font-weight:800; font-size:.9rem; cursor:pointer; color:var(--paper);
+  }
+  .btn.primary{ background:var(--ink); color:var(--paper); }
+  .btn.danger{ background:var(--danger); color:#fff; }
+  .btn.ghost{ background:var(--paper-sunken); color:var(--ink); }
+  .pick-row{ display:flex; gap:10px; }
+  .pick-btn{
+    flex:1; padding:16px 10px; border-radius:16px; border:2px solid var(--line); background:var(--paper-sunken);
+    font-weight:800; font-size:1rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--ink);
+  }
+  .swatch-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .swatch{ width:30px; height:30px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+  .swatch.selected{ border-color:var(--ink); }
+
+  #toastLayer{ position:fixed; top:14px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:200; pointer-events:none; }
+  .toast{
+    background:var(--ink); color:var(--paper); font-weight:800; font-size:.85rem; padding:10px 18px; border-radius:999px;
+    box-shadow:0 4px 20px var(--shadow-strong); animation: toast-in .25s ease, toast-out .3s ease 1.7s forwards;
+  }
+  @keyframes toast-in{ from{ opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes toast-out{ to{ opacity:0; transform:translateY(-6px);} }
+  #confetti{ position:fixed; inset:0; pointer-events:none; z-index:150; }
+
+  @media (prefers-reduced-motion: reduce){
+    .xp-fill,.duel-a,.duel-b,.cbar-fill{ transition:none; }
+    .toast{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><span class="crest">🏆</span><span>Nepomuk-Liga</span></div>
+    <button class="chip-btn" id="whoamiBtn"><span class="dot" id="whoamiDot"></span><span id="whoamiLabel">…</span></button>
+    <button class="icon-btn" id="muteBtn" title="Ton an/aus">🔊</button>
+  </div>
+
+  <div class="banner" id="statusBanner" hidden></div>
+
+  <main>
+    <section class="vs-hero-wrap">
+      <div class="vs-hero" id="vsHero"></div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Tages-Quests</h2><span class="hint">Tippen zum Abhaken</span></div>
+      <div class="quest-grid" id="questGrid"></div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Wochen-Duell</h2><span class="hint" id="weekRange"></span></div>
+      <div class="compare-card" id="compareCard"></div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Monatsübersicht</h2><span class="hint">Tag antippen für Details</span></div>
+      <div class="month-card" id="monthCard">
+        <div class="month-nav">
+          <button id="monthPrev" aria-label="Vorheriger Monat">‹</button>
+          <span class="month-label" id="monthLabel"></span>
+          <button id="monthNext" aria-label="Nächster Monat">›</button>
+        </div>
+        <div class="month-legend">
+          <span><span class="dot" id="legendDotA"></span><span id="legendNameA">Lotte</span></span>
+          <span><span class="dot" id="legendDotB"></span><span id="legendNameB">Maruan</span></span>
+        </div>
+        <div class="weekday-row"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Trophäen</h2></div>
+      <div class="seg" id="badgeSeg"></div>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Verlauf</h2><span class="hint">Tippe 🗑️ zum Korrigieren</span></div>
+      <div class="feed-panel" id="feedPanel"></div>
+    </section>
+  </main>
+</div>
+
+<div id="toastLayer"></div>
+<canvas id="confetti"></canvas>
+<div id="modalLayer"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     FIREBASE CONFIG — paste your project's web app config here.
+     These values are not secrets (Firebase secures data via
+     Firestore rules, not by hiding this object), so it is safe
+     to keep them directly in this public file.
+     ============================================================ */
+  var firebaseConfig = {
+    apiKey: "REPLACE_ME",
+    authDomain: "REPLACE_ME.firebaseapp.com",
+    projectId: "REPLACE_ME",
+    storageBucket: "REPLACE_ME.appspot.com",
+    messagingSenderId: "REPLACE_ME",
+    appId: "REPLACE_ME"
+  };
+
+  /* ============ constants ============ */
+  var DEFAULT_TASKS = [
+    {id:'bett', name:'Nepomuk ins Bett bringen', icon:'🌙', points:3},
+    {id:'muell', name:'Müll rausbringen', icon:'🗑️', points:1},
+    {id:'flaschen', name:'Flaschen machen', icon:'🍼', points:2},
+    {id:'kochen', name:'Kochen', icon:'🍳', points:3},
+    {id:'kueche', name:'Küche machen', icon:'🧽', points:2},
+    {id:'extras', name:'Extras', icon:'✨', points:2, needsNote:true},
+    {id:'anmerkungen', name:'Anmerkungen', icon:'📝', points:0, needsNote:true, noteOnly:true}
+  ];
+
+  var PLAYER_COLORS = ['#FF3D68','#2F6FED','#1E9B63','#E29400','#7C5CFF','#E0435F'];
+
+  var LEVELS = [
+    {min:0,    title:'Couch-Neuling'},
+    {min:20,   title:'Windel-Rekrut'},
+    {min:50,   title:'Flaschen-Flüsterer'},
+    {min:100,  title:'Küchen-Krieger'},
+    {min:180,  title:'Müll-Meister'},
+    {min:300,  title:'Haushalts-Ninja'},
+    {min:450,  title:'Familien-Held:in'},
+    {min:650,  title:'Legende des Hauses'}
+  ];
+
+  var BADGE_DEFS = [
+    {id:'erster_schritt', icon:'🌟', name:'Erster Schritt', desc:'Erste Aufgabe erledigt', fn:function(c){return total(c)>=1;}},
+    {id:'nachtwache', icon:'🌙', name:'Nachtwache', desc:'10x ins Bett gebracht', fn:function(c){return (c.bett||0)>=10;}},
+    {id:'schlummer', icon:'🌌', name:'Schlummer-Champ', desc:'50x ins Bett gebracht', fn:function(c){return (c.bett||0)>=50;}},
+    {id:'flaschengeist', icon:'🍼', name:'Flaschengeist', desc:'20x Flaschen gemacht', fn:function(c){return (c.flaschen||0)>=20;}},
+    {id:'kochprofi', icon:'🍳', name:'Kochprofi', desc:'15x gekocht', fn:function(c){return (c.kochen||0)>=15;}},
+    {id:'muellmarshall', icon:'🗑️', name:'Müll-Marshall', desc:'20x Müll rausgebracht', fn:function(c){return (c.muell||0)>=20;}},
+    {id:'putzteufel', icon:'🧽', name:'Putzteufel', desc:'20x Küche gemacht', fn:function(c){return (c.kueche||0)>=20;}},
+    {id:'allrounder', icon:'🎖️', name:'Allrounder', desc:'Jede Kern-Aufgabe erledigt', fn:function(c){return ['bett','muell','flaschen','kochen','kueche'].every(function(k){return (c[k]||0)>=1;});}},
+    {id:'jahrhundert', icon:'💯', name:'Jahrhundert-Klub', desc:'100 XP gesammelt', fn:function(c,xp){return xp>=100;}},
+    {id:'streak7', icon:'🔥', name:'Wochenfeuer', desc:'7 Tage Serie', fn:function(c,xp,streak){return streak>=7;}},
+    {id:'streak30', icon:'🚒', name:'Dauerbrenner', desc:'30 Tage Serie', fn:function(c,xp,streak){return streak>=30;}}
+  ];
+  function total(counts){ var s=0; for(var k in counts){ s+=counts[k]||0; } return s; }
+
+  /* ============ helpers ============ */
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function dayKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function startOfWeek(date){
+    var d = new Date(date); var day = (d.getDay()+6)%7;
+    d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d;
+  }
+  function relTime(iso){
+    var diff = (Date.now()-new Date(iso).getTime())/1000;
+    if(diff<45) return 'gerade eben';
+    if(diff<3600) return 'vor '+Math.max(1,Math.floor(diff/60))+' Min.';
+    if(diff<86400) return 'vor '+Math.floor(diff/3600)+' Std.';
+    if(diff<86400*7){ var d=Math.floor(diff/86400); return 'vor '+d+(d>1?' Tagen':' Tag'); }
+    var dt=new Date(iso); return dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+  }
+  function levelInfo(xp){
+    xp = Math.max(0, xp||0);
+    var i=0;
+    for(var k=0;k<LEVELS.length;k++){ if(xp>=LEVELS[k].min) i=k; }
+    var cur = LEVELS[i];
+    var next = LEVELS[i+1];
+    var nextMin = next ? next.min : (LEVELS[LEVELS.length-1].min + 300*(Math.floor((xp-LEVELS[LEVELS.length-1].min)/300)+1));
+    var prevMin = cur.min;
+    var progress = nextMin>prevMin ? Math.min(1,(xp-prevMin)/(nextMin-prevMin)) : 1;
+    return { level:i+1, title:cur.title, xp:xp, nextMin:nextMin, progress:progress };
+  }
+  function reducedMotion(){ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  /* ============ audio ============ */
+  var audioCtx = null, muted = lsGet('nl:muted')==='1';
+  function playPop(){
+    if(muted) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type='triangle';
+      o.frequency.setValueAtTime(560, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(920, audioCtx.currentTime+0.09);
+      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime+0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.28);
+      o.connect(g).connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime+0.3);
+    }catch(e){}
+  }
+
+  /* ============ confetti ============ */
+  var confettiCanvas = document.getElementById('confetti');
+  var cctx = confettiCanvas.getContext('2d');
+  var confettiParticles = [], confettiRAF = null;
+  function resizeConfetti(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+  window.addEventListener('resize', resizeConfetti); resizeConfetti();
+  function burstConfetti(colors){
+    if(reducedMotion()) return;
+    var cx = innerWidth/2, cy = 90;
+    for(var i=0;i<36;i++){
+      var ang = Math.random()*Math.PI - Math.PI/2 - Math.PI/2*0.5;
+      var speed = 3+Math.random()*5;
+      confettiParticles.push({
+        x:cx, y:cy,
+        vx:Math.cos(ang)*speed + (Math.random()-0.5)*4,
+        vy:Math.sin(ang)*speed - 2,
+        g:0.16+Math.random()*0.08,
+        size:4+Math.random()*4,
+        color: colors[i%colors.length],
+        rot:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.3,
+        life:0, maxLife: 70+Math.random()*30
+      });
+    }
+    if(!confettiRAF) tickConfetti();
+  }
+  function tickConfetti(){
+    cctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+    confettiParticles = confettiParticles.filter(function(p){ return p.life < p.maxLife; });
+    confettiParticles.forEach(function(p){
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+      var alpha = 1 - p.life/p.maxLife;
+      cctx.save(); cctx.globalAlpha = Math.max(0,alpha);
+      cctx.translate(p.x,p.y); cctx.rotate(p.rot);
+      cctx.fillStyle = p.color;
+      cctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      cctx.restore();
+    });
+    if(confettiParticles.length){ confettiRAF = requestAnimationFrame(tickConfetti); }
+    else { confettiRAF = null; }
+  }
+
+  function showToast(text){
+    var layer = document.getElementById('toastLayer');
+    var t = document.createElement('div'); t.className='toast'; t.textContent = text;
+    layer.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 2100);
+  }
+  function setBanner(text){
+    var b = document.getElementById('statusBanner');
+    if(text){ b.textContent = text; b.hidden = false; } else { b.hidden = true; }
+  }
+
+  /* ============ modal ============ */
+  function closeModal(){ document.getElementById('modalLayer').innerHTML=''; }
+  function openModal(innerHTML, onMount){
+    var layer = document.getElementById('modalLayer');
+    layer.innerHTML = '<div class="modal-back" id="modalBack"><div class="modal-card">'+innerHTML+'</div></div>';
+    document.getElementById('modalBack').addEventListener('click', function(e){ if(e.target.id==='modalBack') closeModal(); });
+    if(onMount) onMount(layer);
+  }
+
+  /* ============ backend (Firebase Firestore, or local fallback) ============ */
+  var readOnly = false;
+  var fsDb = null;
+  var FieldValue = null;
+
+  function defaultPlayers(){
+    return {
+      lotte:  {name:'Lotte',  color:PLAYER_COLORS[0], xp:0, counts:{}},
+      maruan: {name:'Maruan', color:PLAYER_COLORS[1], xp:0, counts:{}}
+    };
+  }
+
+  var backend;
+
+  function makeLocalBackend(){
+    var LS_TASKS='nl:tasks', LS_PLAYERS='nl:players', LS_LOGS='nl:logs';
+    function readJSON(k,fallback){ try{ var v=lsGet(k); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } }
+    function writeJSON(k,v){ try{ lsSet(k, JSON.stringify(v)); }catch(e){} }
+    if(!readJSON(LS_TASKS,null)) writeJSON(LS_TASKS, DEFAULT_TASKS);
+    if(!readJSON(LS_PLAYERS,null)) writeJSON(LS_PLAYERS, defaultPlayers());
+    if(!readJSON(LS_LOGS,null)) writeJSON(LS_LOGS, []);
+    var taskCbs=[], playerCbs=[], logCbs=[];
+    function notifyTasks(){ var t=readJSON(LS_TASKS,[]); taskCbs.forEach(function(cb){cb(t);}); }
+    function notifyPlayers(){ var p=readJSON(LS_PLAYERS,defaultPlayers()); playerCbs.forEach(function(cb){cb(p);}); }
+    function notifyLogs(){ var l=readJSON(LS_LOGS,[]); logCbs.forEach(function(cb){cb(l);}); }
+    return {
+      onTasks:function(cb){ taskCbs.push(cb); cb(readJSON(LS_TASKS,[])); },
+      onPlayers:function(cb){ playerCbs.push(cb); cb(readJSON(LS_PLAYERS,defaultPlayers())); },
+      onLogs:function(cb){ logCbs.push(cb); cb(readJSON(LS_LOGS,[])); },
+      addTask:function(t){ var arr=readJSON(LS_TASKS,[]); arr.push(t); writeJSON(LS_TASKS,arr); notifyTasks(); },
+      deleteTask:function(id){ var arr=readJSON(LS_TASKS,[]).filter(function(t){return t.id!==id;}); writeJSON(LS_TASKS,arr); notifyTasks(); },
+      addLog:function(entry){
+        var id='l_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+        var arr=readJSON(LS_LOGS,[]); arr.unshift(Object.assign({id:id}, entry)); if(arr.length>1000) arr=arr.slice(0,1000);
+        writeJSON(LS_LOGS,arr); notifyLogs();
+      },
+      deleteLog:function(id){
+        var arr=readJSON(LS_LOGS,[]); var idx=arr.findIndex(function(l){return l.id===id;});
+        if(idx===-1) return;
+        var entry=arr[idx]; arr.splice(idx,1); writeJSON(LS_LOGS,arr); notifyLogs();
+        if(entry.points>0){
+          var p=readJSON(LS_PLAYERS,defaultPlayers());
+          if(p[entry.person]){
+            p[entry.person].xp = Math.max(0,(p[entry.person].xp||0)-entry.points);
+            if(p[entry.person].counts && p[entry.person].counts[entry.taskId]) p[entry.person].counts[entry.taskId] = Math.max(0,p[entry.person].counts[entry.taskId]-1);
+          }
+          writeJSON(LS_PLAYERS,p); notifyPlayers();
+        }
+      },
+      bumpPlayer:function(person, taskId, points){
+        var p = readJSON(LS_PLAYERS, defaultPlayers());
+        if(!p[person]) p[person] = {name:person, color:PLAYER_COLORS[0], xp:0, counts:{}};
+        p[person].xp = (p[person].xp||0) + points;
+        p[person].counts = p[person].counts || {};
+        p[person].counts[taskId] = (p[person].counts[taskId]||0) + 1;
+        writeJSON(LS_PLAYERS, p); notifyPlayers();
+      },
+      updatePlayer:function(person, patch){
+        var p = readJSON(LS_PLAYERS, defaultPlayers());
+        p[person] = Object.assign({}, p[person], patch);
+        writeJSON(LS_PLAYERS, p); notifyPlayers();
+      }
+    };
+  }
+
+  function makeFirebaseBackend(db){
+    var tasksRef = db.collection('tasks');
+    var logsQuery = db.collection('logs').orderBy('ts','desc').limit(1000);
+    var playersRef = db.collection('meta').doc('players');
+
+    tasksRef.get().then(function(snap){
+      if(snap.empty){ DEFAULT_TASKS.forEach(function(t){ tasksRef.doc(t.id).set(t); }); }
+    });
+    playersRef.get().then(function(snap){
+      if(!snap.exists){ playersRef.set(defaultPlayers()); }
+    });
+
+    return {
+      onTasks:function(cb){ tasksRef.onSnapshot(function(snap){ cb(snap.docs.map(function(d){ return d.data(); })); }, function(){}); },
+      onPlayers:function(cb){ playersRef.onSnapshot(function(snap){ cb(snap.exists?snap.data():defaultPlayers()); }, function(){}); },
+      onLogs:function(cb){ logsQuery.onSnapshot(function(snap){ cb(snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); })); }, function(){}); },
+      addTask:function(t){ tasksRef.doc(t.id).set(t); },
+      deleteTask:function(id){ tasksRef.doc(id).delete(); },
+      addLog:function(entry){ db.collection('logs').add(entry); },
+      deleteLog:function(id, entry){
+        db.collection('logs').doc(id).delete();
+        if(entry && entry.points>0){
+          var patch = {};
+          patch[entry.person+'.xp'] = FieldValue.increment(-entry.points);
+          patch[entry.person+'.counts.'+entry.taskId] = FieldValue.increment(-1);
+          playersRef.update(patch).catch(function(){});
+        }
+      },
+      bumpPlayer:function(person, taskId, points){
+        var patch = {};
+        patch[person+'.xp'] = FieldValue.increment(points);
+        patch[person+'.counts.'+taskId] = FieldValue.increment(1);
+        playersRef.set({}, {merge:true}).then(function(){ return playersRef.update(patch); }).catch(function(){});
+      },
+      updatePlayer:function(person, patch){
+        var p = {}; p[person+'.name'] = patch.name; p[person+'.color'] = patch.color;
+        playersRef.update(p).catch(function(){});
+      }
+    };
+  }
+
+  /* ============ app state ============ */
+  var state = { tasks: DEFAULT_TASKS.slice(), players: defaultPlayers(), logs: [] };
+  var profile = lsGet('nl:profile');
+  var viewMonth = new Date(); viewMonth.setDate(1);
+
+  function ensureProfile(cb){
+    if(profile==='lotte'||profile==='maruan'){ cb(); return; }
+    openModal(
+      '<h3>Wer bist du gerade?</h3>'+
+      '<div class="pick-row">'+
+        '<button class="pick-btn" data-p="lotte" style="border-color:'+PLAYER_COLORS[0]+'"><span style="font-size:1.6rem">💗</span>Lotte</button>'+
+        '<button class="pick-btn" data-p="maruan" style="border-color:'+PLAYER_COLORS[1]+'"><span style="font-size:1.6rem">💙</span>Maruan</button>'+
+      '</div>',
+      function(layer){
+        layer.querySelectorAll('.pick-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            profile = btn.getAttribute('data-p');
+            lsSet('nl:profile', profile);
+            closeModal(); cb(); renderAll();
+          });
+        });
+      }
+    );
+  }
+
+  /* ============ derived stats ============ */
+  function computeStreak(person){
+    var days = {};
+    state.logs.forEach(function(l){ if(l.person===person && l.points>0){ days[l.day] = true; } });
+    var d = new Date();
+    if(!days[dayKey(d)]) d.setDate(d.getDate()-1);
+    var streak = 0;
+    while(days[dayKey(d)]){ streak++; d.setDate(d.getDate()-1); }
+    return streak;
+  }
+  function weekLogs(){
+    var ws = startOfWeek(new Date());
+    return state.logs.filter(function(l){ return new Date(l.ts) >= ws; });
+  }
+  function todayLogs(){
+    var tk = dayKey(new Date());
+    return state.logs.filter(function(l){ return l.day===tk; });
+  }
+
+  /* ============ rendering ============ */
+  function renderAll(){
+    renderTopbar(); renderVsHero(); renderQuestGrid(); renderCompare();
+    renderMonth(); renderBadges(); renderFeed();
+  }
+
+  var badgeTab = null;
+
+  function renderTopbar(){
+    var p = state.players[profile] || {name:profile, color:PLAYER_COLORS[0]};
+    document.getElementById('whoamiDot').style.background = p.color;
+    document.getElementById('whoamiLabel').textContent = p.name || profile || '…';
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+  }
+
+  function renderVsHero(){
+    var week = weekLogs();
+    var weekPts = {lotte:0, maruan:0};
+    week.forEach(function(l){ weekPts[l.person] = (weekPts[l.person]||0) + (l.points||0); });
+    var leader = weekPts.lotte===weekPts.maruan ? null : (weekPts.lotte>weekPts.maruan?'lotte':'maruan');
+
+    function panel(key){
+      var p = state.players[key] || {name:key, color:PLAYER_COLORS[0], xp:0, counts:{}};
+      var li = levelInfo(p.xp);
+      var streak = computeStreak(key);
+      var initial = (p.name||key).charAt(0).toUpperCase();
+      return (
+        '<div class="player-panel">'+
+          '<div class="player-top">'+
+            '<div class="avatar" style="background:'+p.color+'">'+esc(initial)+'</div>'+
+            '<div style="min-width:0">'+
+              '<div class="player-name-row"><span class="player-name">'+esc(p.name||key)+'</span>'+
+                (readOnly?'':'<button class="rename-btn" data-edit="'+key+'" title="Bearbeiten">✏️</button>')+
+                (leader===key?'<span class="crown">👑</span>':'')+
+              '</div>'+
+              '<div class="rank-title">Lvl '+li.level+' · '+esc(li.title)+'</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="xp-row"><span class="num">'+li.xp+' XP</span><span>· weiter bis Lvl '+(li.level+1)+'</span></div>'+
+          '<div class="xp-track"><div class="xp-fill" style="width:'+Math.round(li.progress*100)+'%"></div></div>'+
+          '<div class="stat-line"><span class="flame">🔥 '+streak+' Tage</span><span class="num">'+(weekPts[key]||0)+' Pkt. diese Woche</span></div>'+
+        '</div>'
+      );
+    }
+
+    var totalWeek = (weekPts.lotte||0) + (weekPts.maruan||0);
+    var pctA = totalWeek>0 ? Math.round((weekPts.lotte/totalWeek)*100) : 50;
+    var pctB = 100-pctA;
+
+    document.getElementById('vsHero').innerHTML =
+      '<div class="vs-grid">'+ panel('lotte') + '<div class="vs-badge">VS</div>' + panel('maruan') + '</div>'+
+      '<div class="duel-bar">'+
+        '<div class="duel-track"><div class="duel-a" style="width:'+pctA+'%"></div><div class="duel-b" style="width:'+pctB+'%"></div></div>'+
+        '<div class="duel-labels"><span>'+(totalWeek>0?pctA+'%':'—')+'</span><span>'+(totalWeek===0?'Noch keine Punkte diese Woche — legt los!':'')+'</span><span>'+(totalWeek>0?pctB+'%':'—')+'</span></div>'+
+      '</div>';
+
+    document.querySelectorAll('[data-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openEditPlayer(btn.getAttribute('data-edit')); });
+    });
+  }
+
+  function openEditPlayer(key){
+    if(readOnly) return;
+    var p = state.players[key] || {name:key, color:PLAYER_COLORS[0]};
+    var swatches = PLAYER_COLORS.map(function(c){
+      return '<button class="swatch'+(c===p.color?' selected':'')+'" style="background:'+c+'" data-c="'+c+'"></button>';
+    }).join('');
+    openModal(
+      '<h3>Spieler:in bearbeiten</h3>'+
+      '<label>Name<input type="text" id="editName" value="'+esc(p.name||key)+'" maxlength="20"></label>'+
+      '<label>Farbe<div class="swatch-row">'+swatches+'</div></label>'+
+      '<div class="modal-actions"><button class="btn ghost" id="cancelEdit">Abbrechen</button><button class="btn primary" id="saveEdit">Speichern</button></div>',
+      function(layer){
+        var chosen = p.color;
+        layer.querySelectorAll('.swatch').forEach(function(sw){
+          sw.addEventListener('click', function(){
+            chosen = sw.getAttribute('data-c');
+            layer.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('selected'); });
+            sw.classList.add('selected');
+          });
+        });
+        layer.querySelector('#cancelEdit').addEventListener('click', closeModal);
+        layer.querySelector('#saveEdit').addEventListener('click', function(){
+          var name = layer.querySelector('#editName').value.trim() || key;
+          closeModal();
+          backend.updatePlayer(key, {name:name, color:chosen});
+        });
+      }
+    );
+  }
+
+  function renderQuestGrid(){
+    var today = todayLogs();
+    var grid = document.getElementById('questGrid');
+    var html = state.tasks.map(function(t){
+      var lotteCount = today.filter(function(l){return l.taskId===t.id && l.person==='lotte';}).length;
+      var maruanCount = today.filter(function(l){return l.taskId===t.id && l.person==='maruan';}).length;
+      var delBtn = (t.custom && !readOnly) ? '<button class="del-x" data-del="'+t.id+'" title="Löschen">✕</button>' : '';
+      return (
+        '<button class="quest-card" data-task="'+t.id+'">'+
+          delBtn +
+          '<div class="quest-icon-row"><div class="quest-icon">'+t.icon+'</div>'+(t.points>0?'<span class="points-chip">+'+t.points+'</span>':'')+'</div>'+
+          '<div class="quest-name">'+esc(t.name)+'</div>'+
+          '<div class="quest-today">'+
+            '<span><span class="dot" style="background:'+PLAYER_COLORS[0]+'"></span>'+lotteCount+'</span>'+
+            '<span><span class="dot" style="background:'+PLAYER_COLORS[1]+'"></span>'+maruanCount+'</span>'+
+          '</div>'+
+        '</button>'
+      );
+    }).join('') + (readOnly ? '' : '<button class="quest-card add-card" id="addTaskCard"><span style="font-size:1.4rem">＋</span>Neue Aufgabe</button>');
+    grid.innerHTML = html;
+
+    grid.querySelectorAll('[data-task]').forEach(function(card){
+      card.addEventListener('click', function(e){
+        if(e.target.closest('[data-del]')) return;
+        var id = card.getAttribute('data-task');
+        var task = state.tasks.find(function(t){ return t.id===id; });
+        handleTaskTap(task);
+      });
+    });
+    grid.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        if(confirm('Aufgabe wirklich löschen?')) backend.deleteTask(btn.getAttribute('data-del'));
+      });
+    });
+    var addCard = document.getElementById('addTaskCard');
+    if(addCard) addCard.addEventListener('click', openAddTask);
+  }
+
+  function handleTaskTap(task){
+    if(task.needsNote){
+      openModal(
+        '<h3>'+task.icon+' '+esc(task.name)+'</h3>'+
+        '<label>'+(task.noteOnly ? 'Was möchtest du festhalten?' : 'Was gab’s?')+'<textarea id="noteText" rows="3" placeholder="'+(task.noteOnly?'z.B. Nepomuk hat heute zum ersten Mal…':'z.B. Fenster geputzt')+'"></textarea></label>'+
+        '<div class="modal-actions"><button class="btn ghost" id="cancelNote">Abbrechen</button><button class="btn primary" id="saveNote">Speichern</button></div>',
+        function(layer){
+          layer.querySelector('#noteText').focus();
+          layer.querySelector('#cancelNote').addEventListener('click', closeModal);
+          layer.querySelector('#saveNote').addEventListener('click', function(){
+            var note = layer.querySelector('#noteText').value.trim();
+            closeModal();
+            logTask(task, note || null);
+          });
+        }
+      );
+    } else {
+      logTask(task, null);
+    }
+  }
+
+  function logTask(task, note){
+    var entry = {
+      taskId: task.id, taskName: task.name, icon: task.icon, points: task.points,
+      person: profile, note: note || null, ts: new Date().toISOString(), day: dayKey(new Date())
+    };
+    backend.addLog(entry);
+    if(task.points>0){
+      backend.bumpPlayer(profile, task.id, task.points);
+      var p = state.players[profile];
+      showToast('🎉 +'+task.points+' XP für '+((p&&p.name)||profile)+'!');
+      playPop();
+      burstConfetti([(p&&p.color)||PLAYER_COLORS[0], '#FFB627', '#7C5CFF']);
+    } else {
+      showToast('📝 Notiz gespeichert');
+    }
+  }
+
+  function confirmDeleteLog(logId){
+    var entry = state.logs.find(function(l){ return l.id===logId; });
+    if(!entry) return;
+    var pName = esc((state.players[entry.person] && state.players[entry.person].name) || entry.person);
+    openModal(
+      '<h3>Eintrag löschen?</h3>'+
+      '<p style="font-size:.85rem;color:var(--ink-soft)">'+entry.icon+' <b>'+esc(entry.taskName)+'</b> von '+pName+(entry.points>0?' wird entfernt — inklusive '+entry.points+' XP.':' wird entfernt.')+'</p>'+
+      '<div class="modal-actions"><button class="btn ghost" id="cancelDel">Abbrechen</button><button class="btn danger" id="confirmDel">Löschen</button></div>',
+      function(layer){
+        layer.querySelector('#cancelDel').addEventListener('click', closeModal);
+        layer.querySelector('#confirmDel').addEventListener('click', function(){
+          closeModal();
+          backend.deleteLog(logId, entry);
+          showToast('🗑️ Eintrag gelöscht');
+        });
+      }
+    );
+  }
+
+  function openAddTask(){
+    openModal(
+      '<h3>Neue Aufgabe</h3>'+
+      '<label>Emoji<input type="text" id="taskIcon" value="🧩" maxlength="4"></label>'+
+      '<label>Name<input type="text" id="taskName" placeholder="z.B. Pflanzen gießen" maxlength="40"></label>'+
+      '<label>Punkte<input type="number" id="taskPoints" value="2" min="0" max="10"></label>'+
+      '<div class="modal-actions"><button class="btn ghost" id="cancelTask">Abbrechen</button><button class="btn primary" id="saveTask">Hinzufügen</button></div>',
+      function(layer){
+        layer.querySelector('#taskName').focus();
+        layer.querySelector('#cancelTask').addEventListener('click', closeModal);
+        layer.querySelector('#saveTask').addEventListener('click', function(){
+          var name = layer.querySelector('#taskName').value.trim();
+          if(!name) return;
+          var icon = layer.querySelector('#taskIcon').value.trim() || '🧩';
+          var points = Math.max(0, parseInt(layer.querySelector('#taskPoints').value,10) || 0);
+          var id = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+          closeModal();
+          backend.addTask({id:id, name:name, icon:icon, points:points, custom:true});
+        });
+      }
+    );
+  }
+
+  function renderCompare(){
+    var week = weekLogs();
+    document.getElementById('weekRange').textContent = 'Diese Woche';
+    var byTask = {};
+    state.tasks.forEach(function(t){ byTask[t.id] = {lotte:0, maruan:0, task:t}; });
+    week.forEach(function(l){
+      if(!byTask[l.taskId]) byTask[l.taskId] = {lotte:0, maruan:0, task:{name:l.taskName, icon:l.icon}};
+      byTask[l.taskId][l.person] = (byTask[l.taskId][l.person]||0) + 1;
+    });
+    var rows = Object.keys(byTask).map(function(id){ return byTask[id]; })
+      .filter(function(r){ return r.task.points !== 0 || (r.lotte+r.maruan)>0; })
+      .filter(function(r){ return !(r.task.noteOnly); });
+    var max = 1;
+    rows.forEach(function(r){ max = Math.max(max, r.lotte, r.maruan); });
+
+    document.getElementById('compareCard').innerHTML = rows.map(function(r){
+      var pa = Math.round((r.lotte/max)*100), pb = Math.round((r.maruan/max)*100);
+      return (
+        '<div class="compare-row">'+
+          '<div class="crow-label">'+(r.task.icon||'')+' '+esc(r.task.name)+'</div>'+
+          '<div class="compare-bars">'+
+            '<div class="cbar-track"><div class="cbar-fill" style="width:'+pa+'%;background:'+PLAYER_COLORS[0]+'"></div></div>'+
+            '<div class="cbar-track"><div class="cbar-fill" style="width:'+pb+'%;background:'+PLAYER_COLORS[1]+'"></div></div>'+
+          '</div>'+
+          '<div class="compare-nums"><span>Lotte: '+r.lotte+'</span><span>Maruan: '+r.maruan+'</span></div>'+
+        '</div>'
+      );
+    }).join('') || '<div class="feed-empty">Noch keine Aufgaben diese Woche.</div>';
+  }
+
+  function renderMonth(){
+    var la = state.players.lotte || {name:'Lotte',color:PLAYER_COLORS[0]};
+    var lb = state.players.maruan || {name:'Maruan',color:PLAYER_COLORS[1]};
+    document.getElementById('legendDotA').style.background = la.color;
+    document.getElementById('legendNameA').textContent = la.name||'Lotte';
+    document.getElementById('legendDotB').style.background = lb.color;
+    document.getElementById('legendNameB').textContent = lb.name||'Maruan';
+
+    var y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+    document.getElementById('monthLabel').textContent = viewMonth.toLocaleDateString('de-DE',{month:'long', year:'numeric'});
+
+    var byDay = {};
+    state.logs.forEach(function(l){
+      if(!byDay[l.day]) byDay[l.day] = {lotte:0, maruan:0};
+      byDay[l.day][l.person] = (byDay[l.day][l.person]||0) + (l.points||0);
+    });
+    var maxDay = 1;
+    Object.keys(byDay).forEach(function(k){ maxDay = Math.max(maxDay, byDay[k].lotte||0, byDay[k].maruan||0); });
+
+    var firstOfMonth = new Date(y, m, 1);
+    var startOffset = (firstOfMonth.getDay()+6)%7;
+    var daysInMonth = new Date(y, m+1, 0).getDate();
+    var todayKey = dayKey(new Date());
+
+    var cells = '';
+    for(var i=0;i<startOffset;i++){ cells += '<div class="cal-cell empty"></div>'; }
+    for(var day=1; day<=daysInMonth; day++){
+      var dk = y+'-'+pad(m+1)+'-'+pad(day);
+      var d = byDay[dk] || {lotte:0, maruan:0};
+      var ha = d.lotte>0 ? Math.max(14, Math.round((d.lotte/maxDay)*100)) : 0;
+      var hb = d.maruan>0 ? Math.max(14, Math.round((d.maruan/maxDay)*100)) : 0;
+      cells += (
+        '<button class="cal-cell'+(dk===todayKey?' today':'')+'" data-day="'+dk+'">'+
+          '<span class="cal-num">'+day+'</span>'+
+          '<span class="cal-bars"><span class="cal-bar a" style="height:'+ha+'%"></span><span class="cal-bar b" style="height:'+hb+'%"></span></span>'+
+        '</button>'
+      );
+    }
+    document.getElementById('calGrid').innerHTML = cells;
+    document.querySelectorAll('[data-day]').forEach(function(btn){
+      btn.addEventListener('click', function(){ openDayModal(btn.getAttribute('data-day')); });
+    });
+  }
+
+  function openDayModal(dk){
+    var entries = state.logs.filter(function(l){ return l.day===dk; });
+    var dateLabel = new Date(dk+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long', day:'2-digit', month:'long'});
+    var listHtml = entries.length ? entries.map(function(l){
+      var p = state.players[l.person] || {name:l.person, color:PLAYER_COLORS[0]};
+      var line = l.points>0
+        ? '<b>'+esc(p.name||l.person)+'</b> · '+esc(l.taskName)+' <span class="num">+'+l.points+'</span>'
+        : '<b>'+esc(p.name||l.person)+'</b> · '+esc(l.taskName);
+      return (
+        '<div class="feed-row">'+
+          '<div class="feed-dot" style="background:'+p.color+'"></div>'+
+          '<div class="feed-body"><div class="feed-line">'+l.icon+' '+line+'</div>'+
+          (l.note ? '<div class="feed-note">„'+esc(l.note)+'“</div>' : '')+'</div>'+
+          '<div class="feed-right">'+(readOnly?'':'<button class="feed-del" data-delid="'+l.id+'" title="Eintrag löschen">🗑️</button>')+'</div>'+
+        '</div>'
+      );
+    }).join('') : '<div class="feed-empty">Nichts eingetragen an diesem Tag.</div>';
+
+    openModal(
+      '<h3>'+esc(dateLabel)+'</h3>'+
+      '<div class="day-modal-list">'+listHtml+'</div>'+
+      '<div class="modal-actions"><button class="btn ghost" id="closeDayModal">Schließen</button></div>',
+      function(layer){
+        layer.querySelector('#closeDayModal').addEventListener('click', closeModal);
+        layer.querySelectorAll('[data-delid]').forEach(function(btn){
+          btn.addEventListener('click', function(){ closeModal(); confirmDeleteLog(btn.getAttribute('data-delid')); });
+        });
+      }
+    );
+  }
+
+  function renderBadges(){
+    if(!badgeTab) badgeTab = profile || 'lotte';
+    var seg = document.getElementById('badgeSeg');
+    seg.innerHTML = ['lotte','maruan'].map(function(k){
+      var p = state.players[k]||{name:k};
+      return '<button class="'+(badgeTab===k?'active':'')+'" data-tab="'+k+'">'+esc(p.name||k)+'</button>';
+    }).join('');
+    seg.querySelectorAll('[data-tab]').forEach(function(btn){
+      btn.addEventListener('click', function(){ badgeTab = btn.getAttribute('data-tab'); renderBadges(); });
+    });
+    var p = state.players[badgeTab] || {counts:{}, xp:0};
+    var streak = computeStreak(badgeTab);
+    document.getElementById('badgeGrid').innerHTML = BADGE_DEFS.map(function(b){
+      var earned = b.fn(p.counts||{}, p.xp||0, streak);
+      return (
+        '<div class="badge-tile'+(earned?'':' locked')+'" title="'+esc(b.desc)+'">'+
+          '<div class="b-icon">'+b.icon+'</div><div class="b-name">'+esc(b.name)+'</div>'+
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function renderFeed(){
+    var panel = document.getElementById('feedPanel');
+    if(!state.logs.length){ panel.innerHTML = '<div class="feed-empty">Noch nichts eingetragen — legt mit der ersten Quest los! 🚀</div>'; return; }
+    panel.innerHTML = state.logs.slice(0,60).map(function(l){
+      var p = state.players[l.person] || {name:l.person, color:PLAYER_COLORS[0]};
+      var line = l.points>0
+        ? '<b>'+esc(p.name||l.person)+'</b> hat <b>'+esc(l.taskName)+'</b> erledigt <span class="num">+'+l.points+'</span>'
+        : '<b>'+esc(p.name||l.person)+'</b> · '+esc(l.taskName);
+      return (
+        '<div class="feed-row">'+
+          '<div class="feed-dot" style="background:'+p.color+'"></div>'+
+          '<div class="feed-body"><div class="feed-line">'+l.icon+' '+line+'</div>'+
+          (l.note ? '<div class="feed-note">„'+esc(l.note)+'“</div>' : '')+'</div>'+
+          '<div class="feed-right"><span class="feed-time">'+relTime(l.ts)+'</span>'+
+            (readOnly ? '' : '<button class="feed-del" data-delid="'+l.id+'" title="Eintrag löschen">🗑️</button>')+
+          '</div>'+
+        '</div>'
+      );
+    }).join('');
+    panel.querySelectorAll('[data-delid]').forEach(function(btn){
+      btn.addEventListener('click', function(){ confirmDeleteLog(btn.getAttribute('data-delid')); });
+    });
+  }
+
+  /* ============ wiring ============ */
+  document.getElementById('whoamiBtn').addEventListener('click', function(){
+    openModal(
+      '<h3>Profil wechseln</h3>'+
+      '<div class="pick-row">'+
+        '<button class="pick-btn" data-p="lotte" style="border-color:'+PLAYER_COLORS[0]+'"><span style="font-size:1.6rem">💗</span>'+esc((state.players.lotte&&state.players.lotte.name)||'Lotte')+'</button>'+
+        '<button class="pick-btn" data-p="maruan" style="border-color:'+PLAYER_COLORS[1]+'"><span style="font-size:1.6rem">💙</span>'+esc((state.players.maruan&&state.players.maruan.name)||'Maruan')+'</button>'+
+      '</div>',
+      function(layer){
+        layer.querySelectorAll('.pick-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            profile = btn.getAttribute('data-p');
+            lsSet('nl:profile', profile);
+            closeModal(); renderAll();
+          });
+        });
+      }
+    );
+  });
+  document.getElementById('muteBtn').addEventListener('click', function(){
+    muted = !muted; lsSet('nl:muted', muted?'1':'0'); renderTopbar();
+  });
+  document.getElementById('monthPrev').addEventListener('click', function(){
+    viewMonth.setMonth(viewMonth.getMonth()-1); renderMonth();
+  });
+  document.getElementById('monthNext').addEventListener('click', function(){
+    viewMonth.setMonth(viewMonth.getMonth()+1); renderMonth();
+  });
+
+  /* ============ boot ============ */
+  var FIREBASE_READY = firebaseConfig.apiKey !== 'REPLACE_ME';
+
+  function subscribeAll(){
+    backend.onTasks(function(tasks){ state.tasks = tasks && tasks.length ? tasks : DEFAULT_TASKS; renderQuestGrid(); renderCompare(); });
+    backend.onPlayers(function(players){ state.players = players || defaultPlayers(); renderTopbar(); renderVsHero(); renderQuestGrid(); renderMonth(); renderBadges(); renderFeed(); });
+    backend.onLogs(function(logs){ state.logs = logs || []; renderVsHero(); renderQuestGrid(); renderCompare(); renderMonth(); renderBadges(); renderFeed(); });
+  }
+
+  function boot(){
+    ensureProfile(function(){});
+    renderAll();
+    subscribeAll();
+  }
+
+  if(FIREBASE_READY && window.firebase){
+    try{
+      firebase.initializeApp(firebaseConfig);
+      fsDb = firebase.firestore();
+      FieldValue = firebase.firestore.FieldValue;
+      backend = makeFirebaseBackend(fsDb);
+      boot();
+    }catch(e){
+      backend = makeLocalBackend();
+      setBanner('⚠️ Firebase-Verbindung fehlgeschlagen — lokaler Modus auf diesem Gerät.');
+      boot();
+    }
+  } else {
+    backend = makeLocalBackend();
+    setBanner('⚙️ Firebase ist noch nicht konfiguriert — lokaler Testmodus auf diesem Gerät. Trag deine Firebase-Config im Quellcode ein, damit alle live syncen.');
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
