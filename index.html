@@ -190,9 +190,12 @@
     border-style:dashed; align-items:center; justify-content:center; text-align:center; color:var(--ink-faint);
     font-weight:800; gap:4px;
   }
-  .quest-card .del-x{
+  .quest-card-wrap{ position:relative; }
+  .quest-card-wrap .quest-card{ width:100%; }
+  .quest-card-wrap .del-x{
     position:absolute; top:6px; right:6px; background:var(--paper-sunken); border:none; border-radius:50%;
     width:20px; height:20px; font-size:.7rem; color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    z-index:2;
   }
 
   .compare-card{ background:var(--paper-raised); border:1.5px solid var(--line); border-radius:18px; padding:14px; display:flex; flex-direction:column; gap:12px; }
@@ -781,18 +784,19 @@
     var html = state.tasks.map(function(t){
       var lotteCount = today.filter(function(l){return l.taskId===t.id && l.person==='lotte';}).length;
       var maruanCount = today.filter(function(l){return l.taskId===t.id && l.person==='maruan';}).length;
-      var delBtn = (t.custom && !readOnly) ? '<button class="del-x" data-del="'+t.id+'" title="Löschen">✕</button>' : '';
-      return (
+      var card =
         '<button class="quest-card" data-task="'+t.id+'">'+
-          delBtn +
-          '<div class="quest-icon-row"><div class="quest-icon">'+t.icon+'</div>'+(t.points>0?'<span class="points-chip">+'+t.points+'</span>':'')+'</div>'+
+          '<div class="quest-icon-row"><div class="quest-icon">'+esc(t.icon)+'</div>'+(t.points>0?'<span class="points-chip">+'+t.points+'</span>':'')+'</div>'+
           '<div class="quest-name">'+esc(t.name)+'</div>'+
           '<div class="quest-today">'+
             '<span><span class="dot" style="background:'+PLAYER_COLORS[0]+'"></span>'+lotteCount+'</span>'+
             '<span><span class="dot" style="background:'+PLAYER_COLORS[1]+'"></span>'+maruanCount+'</span>'+
           '</div>'+
-        '</button>'
-      );
+        '</button>';
+      if(t.custom && !readOnly){
+        return '<div class="quest-card-wrap">'+card+'<button class="del-x" data-del="'+t.id+'" title="Löschen">✕</button></div>';
+      }
+      return card;
     }).join('') + (readOnly ? '' : '<button class="quest-card add-card" id="addTaskCard"><span style="font-size:1.4rem">＋</span>Neue Aufgabe</button>');
     grid.innerHTML = html;
 
@@ -817,7 +821,7 @@
   function handleTaskTap(task){
     if(task.needsNote){
       openModal(
-        '<h3>'+task.icon+' '+esc(task.name)+'</h3>'+
+        '<h3>'+esc(task.icon)+' '+esc(task.name)+'</h3>'+
         '<label>'+(task.noteOnly ? 'Was möchtest du festhalten?' : 'Was gab’s?')+'<textarea id="noteText" rows="3" placeholder="'+(task.noteOnly?'z.B. Nepomuk hat heute zum ersten Mal…':'z.B. Fenster geputzt')+'"></textarea></label>'+
         '<div class="modal-actions"><button class="btn ghost" id="cancelNote">Abbrechen</button><button class="btn primary" id="saveNote">Speichern</button></div>',
         function(layer){
@@ -858,7 +862,7 @@
     var pName = esc((state.players[entry.person] && state.players[entry.person].name) || entry.person);
     openModal(
       '<h3>Eintrag löschen?</h3>'+
-      '<p style="font-size:.85rem;color:var(--ink-soft)">'+entry.icon+' <b>'+esc(entry.taskName)+'</b> von '+pName+(entry.points>0?' wird entfernt — inklusive '+entry.points+' XP.':' wird entfernt.')+'</p>'+
+      '<p style="font-size:.85rem;color:var(--ink-soft)">'+esc(entry.icon)+' <b>'+esc(entry.taskName)+'</b> von '+pName+(entry.points>0?' wird entfernt — inklusive '+entry.points+' XP.':' wird entfernt.')+'</p>'+
       '<div class="modal-actions"><button class="btn ghost" id="cancelDel">Abbrechen</button><button class="btn danger" id="confirmDel">Löschen</button></div>',
       function(layer){
         layer.querySelector('#cancelDel').addEventListener('click', closeModal);
@@ -913,7 +917,7 @@
       var pa = Math.round((r.lotte/max)*100), pb = Math.round((r.maruan/max)*100);
       return (
         '<div class="compare-row">'+
-          '<div class="crow-label">'+(r.task.icon||'')+' '+esc(r.task.name)+'</div>'+
+          '<div class="crow-label">'+esc(r.task.icon||'')+' '+esc(r.task.name)+'</div>'+
           '<div class="compare-bars">'+
             '<div class="cbar-track"><div class="cbar-fill" style="width:'+pa+'%;background:'+PLAYER_COLORS[0]+'"></div></div>'+
             '<div class="cbar-track"><div class="cbar-fill" style="width:'+pb+'%;background:'+PLAYER_COLORS[1]+'"></div></div>'+
@@ -979,7 +983,7 @@
       return (
         '<div class="feed-row">'+
           '<div class="feed-dot" style="background:'+p.color+'"></div>'+
-          '<div class="feed-body"><div class="feed-line">'+l.icon+' '+line+'</div>'+
+          '<div class="feed-body"><div class="feed-line">'+esc(l.icon)+' '+line+'</div>'+
           (l.note ? '<div class="feed-note">„'+esc(l.note)+'“</div>' : '')+'</div>'+
           '<div class="feed-right">'+(readOnly?'':'<button class="feed-del" data-delid="'+l.id+'" title="Eintrag löschen">🗑️</button>')+'</div>'+
         '</div>'
@@ -1032,7 +1036,7 @@
       return (
         '<div class="feed-row">'+
           '<div class="feed-dot" style="background:'+p.color+'"></div>'+
-          '<div class="feed-body"><div class="feed-line">'+l.icon+' '+line+'</div>'+
+          '<div class="feed-body"><div class="feed-line">'+esc(l.icon)+' '+line+'</div>'+
           (l.note ? '<div class="feed-note">„'+esc(l.note)+'“</div>' : '')+'</div>'+
           '<div class="feed-right"><span class="feed-time">'+relTime(l.ts)+'</span>'+
             (readOnly ? '' : '<button class="feed-del" data-delid="'+l.id+'" title="Eintrag löschen">🗑️</button>')+
